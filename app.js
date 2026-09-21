@@ -14,7 +14,63 @@ function goHome(){editingFuelId=editingMaintenanceId=editingExpenseId=null;if(!v
 function recomputeFuel(){let rs=[...vf()].sort((a,b)=>a.odometer-b.odometer);rs.forEach((r,i)=>{let p=rs[i-1];r.distance=p?r.odometer-p.odometer:null;r.fuelEconomy=(p&&r.fullTank&&p.fullTank&&r.distance>0)?r.distance/r.liters:null;r.pricePerLiter=r.amount/r.liters});let ids=new Set(rs.map(r=>r.id));fuelRecords=fuelRecords.map(r=>ids.has(r.id)?rs.find(x=>x.id===r.id):r);store(K.fuel,fuelRecords)}
 function latestOil(){return [...vm()].filter(r=>r.type==="オイル交換"||r.type==="オイル＋フィルター交換").sort((a,b)=>b.odometer-a.odometer)[0]||null}
 function costsForMonth(y,m){let f=vf().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0),mt=vm().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0),o=ve().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0);return{fuel:f,maintenance:mt,other:o,total:f+mt+o}}
-function updateHome(){vehicleName.textContent=vehicle.name;vehicleMaker.textContent=vehicle.maker||"メーカー未設定";currentOdometer.textContent=currentKm().toLocaleString()+" km";let e=vf().filter(r=>Number.isFinite(r.fuelEconomy));averageFuel.textContent=e.length?(e.reduce((s,r)=>s+r.fuelEconomy,0)/e.length).toFixed(1)+" km/L":"--- km/L";let n=new Date();monthlyTotalCost.textContent=costsForMonth(n.getFullYear(),n.getMonth()+1).total.toLocaleString()+" 円";inspectionInfo.textContent=vehicle.inspectionDate?fmt(vehicle.inspectionDate):"未設定";if(vehicle.inspectionDate){let days=Math.ceil((new Date(vehicle.inspectionDate+"T00:00:00")-new Date(today()+"T00:00:00"))/86400000);inspectionRemaining.textContent=days>=0?`あと ${days} 日`:`${-days} 日超過`}else inspectionRemaining.textContent="";let o=latestOil();if(o&&vehicle.oilInterval){let next=o.odometer+vehicle.oilInterval,rem=next-currentKm();oilInfo.textContent=rem>=0?`あと ${rem.toLocaleString()} km`:`${Math.abs(rem).toLocaleString()} km 超過`;oilNext.textContent=`次回 ${next.toLocaleString()} km`}else{oilInfo.textContent="未設定";oilNext.textContent=""}}
+function updateHome(){
+ if(!vehicle)return;
+ vehicle.odometer=currentKm();store("carlog_vehicle",vehicle);
+ document.getElementById("vehicleName").textContent=vehicle.name||"---";
+ document.getElementById("vehicleMaker").textContent=vehicle.maker||"";
+ document.getElementById("currentOdometer").textContent=fmt(vehicle.odometer)+" km";
+
+ const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+ const monthFuel=fuelRecords.filter(r=>{const d=new Date(r.date+"T00:00:00");return d.getFullYear()===y&&d.getMonth()===m;});
+ const fuelCost=monthFuel.reduce((s,r)=>s+(Number(r.amount)||0),0);
+ const monthCost=costsForMonth(y,m+1);
+ document.getElementById("monthlyFuelCost").textContent=fmt(fuelCost)+" 円";
+ document.getElementById("monthlyTotalCost").textContent=fmt(monthCost)+" 円";
+
+ const monthOdos=monthFuel.map(r=>Number(r.odometer)).filter(Number.isFinite).sort((a,b)=>a-b);
+ let monthDistance=0;
+ if(monthOdos.length>=2) monthDistance=Math.max(0,monthOdos[monthOdos.length-1]-monthOdos[0]);
+ else if(monthOdos.length===1){
+   const before=fuelRecords.filter(r=>r.date<monthFuel[0].date).sort((a,b)=>b.date.localeCompare(a.date))[0];
+   if(before) monthDistance=Math.max(0,monthOdos[0]-Number(before.odometer||0));
+ }
+ document.getElementById("monthlyDistance").textContent=monthDistance?fmt(monthDistance)+" km":"---";
+
+ const econ=[...fuelRecords].filter(r=>Number(r.fuelEconomy)>0).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+ document.getElementById("latestFuelEconomy").textContent=econ.length?Number(econ[0].fuelEconomy).toFixed(1)+" km/L":"---";
+
+ if(vehicle.inspectionDate){
+   document.getElementById("inspectionInfo").textContent=vehicle.inspectionDate.replaceAll("-","/");
+   const a=new Date(today()+"T00:00:00"),b=new Date(vehicle.inspectionDate+"T00:00:00");
+   const days=Math.ceil((b-a)/86400000);
+   document.getElementById("inspectionRemaining").textContent=days>=0?"あと "+fmt(days)+" 日":"期限切れ";
+ }else{
+   document.getElementById("inspectionInfo").textContent="未設定";
+   document.getElementById("inspectionRemaining").textContent="";
+ }
+
+ const oil=latestOil();
+ if(vehicle.oilInterval){
+   const base=oil?Number(oil.odometer):Number(vehicle.odometer||0);
+   const target=base+Number(vehicle.oilInterval);
+   const remain=target-Number(vehicle.odometer||0);
+   document.getElementById("oilInfo").textContent=fmt(target)+" km";
+   document.getElementById("oilNext").textContent=remain>=0?"あと "+fmt(remain)+" km":"交換目安を "+fmt(Math.abs(remain))+" km 超過";
+ }else{
+   document.getElementById("oilInfo").textContent="未設定";
+   document.getElementById("oilNext").textContent="";
+ }
+
+ const recent=[];
+ fuelRecords.forEach(r=>recent.push({date:r.date,type:"給油",amount:Number(r.amount)||0,detail:(r.liters?Number(r.liters).toFixed(1)+" L":"")}));
+ maintenanceRecords.forEach(r=>recent.push({date:r.date,type:r.type||"整備・修理",amount:Number(r.amount)||0,detail:r.memo||""}));
+ expenseRecords.forEach(r=>recent.push({date:r.date,type:r.category||"その他支出",amount:Number(r.amount)||0,detail:r.memo||""}));
+ recent.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+ const box=document.getElementById("recentRecords");
+ if(!recent.length) box.innerHTML='<div class="muted">まだ記録がありません</div>';
+ else box.innerHTML=recent.slice(0,5).map(r=>'<div class="recent-row"><div><strong>'+esc(r.type)+'</strong><small>'+esc((r.date||"").replaceAll("-","/"))+(r.detail?" ・ "+esc(r.detail):"")+'</small></div><b>'+fmt(r.amount)+' 円</b></div>').join("");
+}
 function openFuelScreen(){editingFuelId=null;fuelScreenTitle.textContent="給油を記録";fuelSaveButton.textContent="登録";fuelDate.value=today();odometer.value=currentKm();liters.value="";amount.value="";fullTank.checked=true;show("fuelScreen")}
 function saveFuel(){let rec={date:fuelDate.value,odometer:+odometer.value,liters:+liters.value,amount:+amount.value,fullTank:fullTank.checked};if(!rec.date||rec.odometer<=0||rec.liters<=0||rec.amount<=0)return alert("入力内容を確認してください。");if(vf().filter(r=>r.id!==editingFuelId).some(r=>r.odometer===rec.odometer))return alert("同じ走行距離の給油記録があります。");if(editingFuelId){let i=fuelRecords.findIndex(r=>r.id===editingFuelId);fuelRecords[i]={...fuelRecords[i],...rec}}else fuelRecords.push({id:id("fuel"),vehicleId:vehicle.id,...rec,createdAt:new Date().toISOString()});store(K.fuel,fuelRecords);recomputeFuel();vehicle.odometer=Math.max(vehicle.odometer||0,currentKm());store(K.vehicle,vehicle);goHome()}
 function editFuel(x){let r=fuelRecords.find(r=>r.id===x);editingFuelId=x;fuelScreenTitle.textContent="給油記録を編集";fuelSaveButton.textContent="変更を保存";fuelDate.value=r.date;odometer.value=r.odometer;liters.value=r.liters;amount.value=r.amount;fullTank.checked=r.fullTank;show("fuelScreen")}function deleteFuel(x){if(!confirm("この給油記録を削除しますか？"))return;fuelRecords=fuelRecords.filter(r=>r.id!==x);store(K.fuel,fuelRecords);recomputeFuel();showFuelHistory()}
