@@ -1,4 +1,4 @@
-const CACHE_NAME = "carlog-v0.10";
+const CACHE_NAME = "carlog-v0.11";
 const APP_FILES = [
   "./",
   "./index.html",

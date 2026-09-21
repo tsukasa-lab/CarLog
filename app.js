@@ -4,7 +4,7 @@ let editingFuelId=null,editingMaintenanceId=null,editingExpenseId=null,costYear=
 document.addEventListener("DOMContentLoaded",()=>{setDates();vehicle?goHome():show("setupScreen")});
 function load(k,f){try{let v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}}function store(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function id(p){return p+"_"+(crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random().toString(16).slice(2))}
-function show(x){["setupScreen","homeScreen","fuelScreen","fuelHistoryScreen","maintenanceScreen","maintenanceHistoryScreen","expenseScreen","costScreen","settingsScreen"].forEach(i=>document.getElementById(i).classList.add("hidden"));document.getElementById(x).classList.remove("hidden")}
+function show(x){["setupScreen","homeScreen","fuelScreen","fuelHistoryScreen","maintenanceScreen","maintenanceHistoryScreen","expenseScreen","costScreen","settingsScreen"].forEach(i=>document.getElementById(i).classList.add("hidden"));document.getElementById(x).classList.remove("hidden");const nav=document.getElementById("bottomNav");if(nav)nav.classList.toggle("hidden",x==="setupScreen")}
 function today(){let d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().split("T")[0]}function setDates(){fuelDate.value=today();maintenanceDate.value=today();expenseDate.value=today()}
 function fmt(v){if(!v)return"";let[y,m,d]=v.split("-");return`${y}/${+m}/${+d}`}function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function vf(){return fuelRecords.filter(r=>!r.vehicleId||r.vehicleId===vehicle.id)}function vm(){return maintenanceRecords.filter(r=>r.vehicleId===vehicle.id)}function ve(){return expenseRecords.filter(r=>r.vehicleId===vehicle.id)}
@@ -105,14 +105,11 @@ function closeQuickAdd(event){
 }
 function quickGo(kind){
   closeQuickAdd();
-  if(kind==="fuel"){
-    if(typeof showFuel==="function") showFuel();
-    else if(typeof showFuelEntry==="function") showFuelEntry();
-  }else if(kind==="maintenance"){
-    if(typeof showMaintenance==="function") showMaintenance();
-    else if(typeof showMaintenanceEntry==="function") showMaintenanceEntry();
-  }else if(kind==="expense"){
-    if(typeof showExpenseEntry==="function") showExpenseEntry();
-    else if(typeof showCosts==="function") showCosts();
+  if(!vehicle){
+    alert("先に車両を登録してください。");
+    return;
   }
+  if(kind==="fuel") openFuelScreen();
+  if(kind==="maintenance") openMaintenanceScreen();
+  if(kind==="expense") openExpenseScreen();
 }
