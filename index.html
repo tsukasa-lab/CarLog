@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CarLog</title>
+<meta name="theme-color" content="#202631">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CarLog">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css"></head><body><div class="container">
+
+<section id="setupScreen" class="hidden">
+ <div class="brand"><div class="logo">C</div><div><h1>CarLog</h1><p>まず愛車を登録しよう</p></div></div>
+ <div class="card form-card"><label>車両名<input id="setupVehicleName" type="text"></label><label>メーカー<input id="setupMaker" type="text"></label><label>現在走行距離（km）<input id="setupOdometer" type="number"></label><label>車検満了日<input id="setupInspectionDate" type="date"></label><label>オイル交換周期（km）<input id="setupOilInterval" type="number" value="5000"></label></div>
+ <button class="primary" onclick="saveInitialVehicle()">この車を登録</button>
+</section>
+
+<section id="homeScreen" class="hidden">
+ <header class="topbar"><div><div class="app-name">CarLog</div><div class="muted">愛車の記録</div></div><button class="icon-button" onclick="openSettings()">⚙</button></header>
+ <div class="hero-card"><div class="muted light">MY CAR</div><h2 id="vehicleName">---</h2><div id="vehicleMaker" class="light-sub">---</div><div class="odometer-row"><span>現在走行距離</span><strong id="currentOdometer">---</strong></div></div>
+ <div class="summary-grid"><div class="card metric"><span>平均燃費</span><strong id="averageFuel">---</strong></div><div class="card metric"><span>今月の維持費</span><strong id="monthlyTotalCost">---</strong></div></div>
+ <div class="card"><div class="section-title">メンテナンス</div><div class="info-row"><span>車検満了</span><div class="right-info"><strong id="inspectionInfo">未設定</strong><small id="inspectionRemaining"></small></div></div><div class="info-row"><span>オイル交換目安</span><div class="right-info"><strong id="oilInfo">未設定</strong><small id="oilNext"></small></div></div></div>
+ <button class="primary" onclick="openFuelScreen()">＋ 給油を記録</button><button class="secondary-dark" onclick="openMaintenanceScreen()">＋ 整備を記録</button><button class="secondary-dark" onclick="openExpenseScreen()">＋ その他の支出を記録</button>
+ <div class="button-grid"><button onclick="showFuelHistory()">給油履歴</button><button onclick="showMaintenanceHistory()">整備履歴</button></div><button onclick="showCosts()">維持費を見る</button><button onclick="openSettings()">車両設定</button>
+</section>
+
+<section id="fuelScreen" class="hidden"><div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1 id="fuelScreenTitle">給油を記録</h1><span></span></div><div class="card form-card"><label>給油日<input type="date" id="fuelDate"></label><label>走行距離（km）<input type="number" id="odometer"></label><label>給油量（L）<input type="number" step="0.01" id="liters"></label><label>支払金額（円）<input type="number" id="amount"></label><label class="checkbox-label"><input type="checkbox" id="fullTank" checked>満タン給油</label></div><button class="primary" id="fuelSaveButton" onclick="saveFuel()">登録</button><button onclick="goHome()">キャンセル</button></section>
+<section id="fuelHistoryScreen" class="hidden"><div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1>給油履歴</h1><span></span></div><div id="fuelHistoryList"></div></section>
+
+<section id="maintenanceScreen" class="hidden"><div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1 id="maintenanceScreenTitle">整備を記録</h1><span></span></div><div class="card form-card"><label>整備日<input type="date" id="maintenanceDate"></label><label>種類<select id="maintenanceType"><option>オイル交換</option><option>オイル＋フィルター交換</option><option>タイヤ交換</option><option>バッテリー交換</option><option>車検</option><option>点検</option><option>修理</option><option>その他</option></select></label><label>走行距離（km）<input type="number" id="maintenanceOdometer"></label><label>費用（円）<input type="number" id="maintenanceAmount"></label><label>メモ<textarea id="maintenanceMemo" rows="3"></textarea></label></div><button class="primary" id="maintenanceSaveButton" onclick="saveMaintenance()">登録</button><button onclick="goHome()">キャンセル</button></section>
+<section id="maintenanceHistoryScreen" class="hidden"><div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1>整備履歴</h1><span></span></div><div id="maintenanceHistoryList"></div></section>
+
+<section id="expenseScreen" class="hidden"><div class="screen-header"><button class="back" onclick="showCosts()">‹</button><h1 id="expenseScreenTitle">その他の支出</h1><span></span></div><div class="card form-card"><label>日付<input type="date" id="expenseDate"></label><label>分類<select id="expenseCategory"><option>自動車税</option><option>任意保険</option><option>駐車場</option><option>高速・有料道路</option><option>洗車</option><option>用品</option><option>その他</option></select></label><label>金額（円）<input type="number" id="expenseAmount"></label><label>メモ<textarea id="expenseMemo" rows="3"></textarea></label></div><button class="primary" id="expenseSaveButton" onclick="saveExpense()">登録</button><button onclick="showCosts()">キャンセル</button></section>
+
+<section id="costScreen" class="hidden">
+ <div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1>維持費</h1><span></span></div>
+ <div class="card year-picker"><button onclick="changeCostYear(-1)">‹</button><strong id="costYearLabel"></strong><button onclick="changeCostYear(1)">›</button></div>
+ <div class="card total-card"><span>年間合計</span><strong id="yearTotal">0 円</strong></div>
+ <div class="cost-grid"><div class="card metric"><span>ガソリン</span><strong id="yearFuelCost">0 円</strong></div><div class="card metric"><span>整備・修理</span><strong id="yearMaintenanceCost">0 円</strong></div><div class="card metric"><span>その他</span><strong id="yearOtherCost">0 円</strong></div><div class="card metric"><span id="avgLabel">今年ここまでの月平均</span><strong id="monthlyAverageCost">0 円</strong></div></div>
+ <div class="card"><div class="section-title">月別維持費</div><canvas id="costChart" width="480" height="220"></canvas><div class="chart-note">棒をタップすると月の内訳を表示</div></div>
+ <div id="selectedMonthCard" class="card hidden"><div class="section-title" id="selectedMonthTitle"></div><div id="selectedMonthDetails"></div></div>
+ <div class="card"><div class="section-title">燃費推移</div><canvas id="fuelChart" width="480" height="220"></canvas><div id="fuelChartEmpty" class="chart-note"></div></div>
+ <button class="primary" onclick="openExpenseScreen()">＋ その他の支出を記録</button><div class="section-heading">その他の支出履歴</div><div id="expenseHistoryList"></div>
+</section>
+
+<section id="settingsScreen" class="hidden"><div class="screen-header"><button class="back" onclick="goHome()">‹</button><h1>車両設定</h1><span></span></div><div class="card form-card"><label>車両名<input id="settingsVehicleName" type="text"></label><label>メーカー<input id="settingsMaker" type="text"></label><label>現在走行距離（km）<input id="settingsOdometer" type="number"></label><label>車検満了日<input id="settingsInspectionDate" type="date"></label><label>オイル交換周期（km）<input id="settingsOilInterval" type="number"></label></div><button class="primary" onclick="saveVehicleSettings()">変更を保存</button>
+ <div class="card backup-card">
+  <div class="section-title">データの引き継ぎ</div>
+  <p class="backup-help">車両・給油・整備・支出データを1つのJSONファイルに保存できます。</p>
+  <button class="backup-button" onclick="exportBackup()">バックアップを書き出す</button>
+  <button class="backup-button" onclick="document.getElementById('backupFileInput').click()">バックアップから復元</button>
+  <input id="backupFileInput" class="hidden" type="file" accept=".json,application/json" onchange="importBackup(event)">
+  <small class="backup-warning">復元すると現在のCarLogデータはバックアップ内容に置き換わります。</small>
+ </div>
+ <button onclick="goHome()">キャンセル</button></section>
+
+</div><script src="app.js"></script>
+<script>
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script></body></html>
