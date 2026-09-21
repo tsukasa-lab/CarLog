@@ -86,3 +86,34 @@ body{padding-bottom:92px}
 .recent-row small{display:block;margin-top:4px;color:#7b8494;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-row b{white-space:nowrap;font-size:14px}
 .version-badge{position:fixed;right:10px;top:10px;z-index:9999;padding:5px 9px;border-radius:999px;background:#202631;color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.15);pointer-events:none}
+
+/* Ver.0.15 layout fixes */
+.version-badge{
+  position:fixed !important;
+  top:max(10px, env(safe-area-inset-top)) !important;
+  right:max(10px, env(safe-area-inset-right)) !important;
+  left:auto !important;
+  max-width:calc(100vw - 20px);
+  white-space:nowrap;
+  z-index:9999;
+}
+body{
+  padding-bottom:calc(118px + env(safe-area-inset-bottom)) !important;
+}
+.container{
+  padding-bottom:34px;
+}
+#homeScreen{
+  padding-bottom:40px;
+}
+#homeScreen > .primary:last-of-type,
+#homeScreen > .button-grid:last-child{
+  margin-bottom:16px;
+}
+.bottom-nav{
+  bottom:max(8px, env(safe-area-inset-bottom)) !important;
+}
+@media (min-width:700px){
+  .version-badge{right:16px !important;top:16px !important}
+  body{padding-bottom:120px !important}
+}

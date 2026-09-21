@@ -16,10 +16,13 @@ function latestOil(){return [...vm()].filter(r=>r.type==="オイル交換"||r.ty
 function costsForMonth(y,m){let f=vf().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0),mt=vm().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0),o=ve().filter(r=>{let[a,b]=r.date.split("-").map(Number);return a===y&&b===m}).reduce((s,r)=>s+r.amount,0);return{fuel:f,maintenance:mt,other:o,total:f+mt+o}}
 function updateHome(){
  if(!vehicle)return;
- vehicle.odometer=currentKm();store("carlog_vehicle",vehicle);
+ const kmNow=Number(currentKm());
+ if(Number.isFinite(kmNow)) vehicle.odometer=kmNow;
+ else if(!Number.isFinite(Number(vehicle.odometer))) vehicle.odometer=0;
+ store("carlog_vehicle",vehicle);
  document.getElementById("vehicleName").textContent=vehicle.name||"---";
  document.getElementById("vehicleMaker").textContent=vehicle.maker||"";
- document.getElementById("currentOdometer").textContent=fmt(vehicle.odometer)+" km";
+ document.getElementById("currentOdometer").textContent=fmt(Number(vehicle.odometer)||0)+" km";
 
  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
  const monthFuel=fuelRecords.filter(r=>{const d=new Date(r.date+"T00:00:00");return d.getFullYear()===y&&d.getMonth()===m;});
@@ -35,10 +38,10 @@ function updateHome(){
    const before=fuelRecords.filter(r=>r.date<monthFuel[0].date).sort((a,b)=>b.date.localeCompare(a.date))[0];
    if(before) monthDistance=Math.max(0,monthOdos[0]-Number(before.odometer||0));
  }
- document.getElementById("monthlyDistance").textContent=monthDistance?fmt(monthDistance)+" km":"---";
+ document.getElementById("monthlyDistance").textContent=fmt(monthDistance)+" km";
 
  const econ=[...fuelRecords].filter(r=>Number(r.fuelEconomy)>0).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
- document.getElementById("latestFuelEconomy").textContent=econ.length?Number(econ[0].fuelEconomy).toFixed(1)+" km/L":"---";
+ document.getElementById("latestFuelEconomy").textContent=econ.length?Number(econ[0].fuelEconomy).toFixed(1)+" km/L":"記録なし";
 
  if(vehicle.inspectionDate){
    document.getElementById("inspectionInfo").textContent=vehicle.inspectionDate.replaceAll("-","/");
