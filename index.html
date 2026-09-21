@@ -55,7 +55,29 @@
  </div>
  <button onclick="goHome()">キャンセル</button></section>
 
-</div><script src="app.js"></script>
+</div>
+<nav class="bottom-nav" id="bottomNav">
+  <button type="button" onclick="goHome()"><span class="nav-icon">⌂</span><span>ホーム</span></button>
+  <button type="button" onclick="showFuel()"><span class="nav-icon">⛽</span><span>給油</span></button>
+  <button type="button" class="nav-add" onclick="openQuickAdd()" aria-label="記録を追加"><span>＋</span></button>
+  <button type="button" onclick="showCosts()"><span class="nav-icon">¥</span><span>維持費</span></button>
+  <button type="button" onclick="showSettings()"><span class="nav-icon">⚙</span><span>設定</span></button>
+</nav>
+
+<div class="sheet-backdrop hidden" id="quickAddBackdrop" onclick="closeQuickAdd(event)">
+  <div class="quick-sheet" id="quickAddSheet">
+    <div class="sheet-handle"></div>
+    <h2>記録を追加</h2>
+    <p>何を記録する？</p>
+    <div class="quick-grid">
+      <button type="button" onclick="quickGo('fuel')"><strong>⛽</strong><span>給油</span></button>
+      <button type="button" onclick="quickGo('maintenance')"><strong>🔧</strong><span>整備・修理</span></button>
+      <button type="button" onclick="quickGo('expense')"><strong>¥</strong><span>その他支出</span></button>
+    </div>
+    <button type="button" class="sheet-cancel" onclick="closeQuickAdd()">キャンセル</button>
+  </div>
+</div>
+<script src="app.js"></script>
 <script>
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", () => {

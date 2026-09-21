@@ -3,3 +3,49 @@
 .backup-help{font-size:14px;line-height:1.6;color:#646d78;margin:7px 0 12px}
 .backup-button{background:#f2f4f7;box-shadow:none}
 .backup-warning{display:block;color:#8a919b;line-height:1.5;margin-top:12px}
+
+/* Ver.0.9 mobile app navigation */
+body{padding-bottom:92px}
+.bottom-nav{
+  position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+  width:min(100%,520px);height:74px;background:rgba(255,255,255,.97);
+  border-top:1px solid #e4e7eb;display:grid;grid-template-columns:1fr 1fr 1.15fr 1fr 1fr;
+  align-items:center;z-index:50;padding:6px 8px max(6px,env(safe-area-inset-bottom));
+  box-sizing:content-box;box-shadow:0 -8px 24px rgba(24,31,42,.08)
+}
+.bottom-nav button{
+  border:0;background:transparent;box-shadow:none;margin:0;padding:4px 2px;
+  min-height:54px;color:#707987;font-size:11px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px
+}
+.bottom-nav .nav-icon{font-size:20px;line-height:22px}
+.bottom-nav .nav-add{
+  width:58px;height:58px;min-height:58px;border-radius:50%;background:#202631;color:#fff;
+  justify-self:center;align-self:start;transform:translateY(-16px);
+  box-shadow:0 8px 20px rgba(32,38,49,.25)
+}
+.bottom-nav .nav-add span{font-size:34px;line-height:34px;font-weight:300}
+.sheet-backdrop{
+  position:fixed;inset:0;background:rgba(15,20,28,.42);z-index:80;
+  display:flex;align-items:flex-end;justify-content:center
+}
+.sheet-backdrop.hidden{display:none}
+.quick-sheet{
+  width:min(100%,520px);background:#fff;border-radius:24px 24px 0 0;
+  padding:10px 20px calc(22px + env(safe-area-inset-bottom));
+  box-shadow:0 -18px 50px rgba(0,0,0,.16)
+}
+.sheet-handle{width:42px;height:5px;border-radius:5px;background:#d7dbe0;margin:0 auto 16px}
+.quick-sheet h2{margin:0;font-size:22px}
+.quick-sheet>p{margin:6px 0 18px;color:#7a8390;font-size:14px}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.quick-grid button{
+  min-height:104px;border:0;border-radius:18px;background:#f2f4f7;box-shadow:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  color:#202631;font-size:13px;font-weight:700
+}
+.quick-grid strong{font-size:27px}
+.sheet-cancel{margin-top:12px;background:#fff!important;border:1px solid #e4e7eb!important;box-shadow:none!important}
+@media (min-width:700px){
+  .bottom-nav{border-radius:20px 20px 0 0}
+}

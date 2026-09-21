@@ -93,3 +93,26 @@ function importBackup(event){
   };
   reader.readAsText(file,"UTF-8");
 }
+
+function openQuickAdd(){
+  const el=document.getElementById("quickAddBackdrop");
+  if(el) el.classList.remove("hidden");
+}
+function closeQuickAdd(event){
+  if(event && event.target!==document.getElementById("quickAddBackdrop")) return;
+  const el=document.getElementById("quickAddBackdrop");
+  if(el) el.classList.add("hidden");
+}
+function quickGo(kind){
+  closeQuickAdd();
+  if(kind==="fuel"){
+    if(typeof showFuel==="function") showFuel();
+    else if(typeof showFuelEntry==="function") showFuelEntry();
+  }else if(kind==="maintenance"){
+    if(typeof showMaintenance==="function") showMaintenance();
+    else if(typeof showMaintenanceEntry==="function") showMaintenanceEntry();
+  }else if(kind==="expense"){
+    if(typeof showExpenseEntry==="function") showExpenseEntry();
+    else if(typeof showCosts==="function") showCosts();
+  }
+}
