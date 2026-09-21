@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css"></head><body><div class="container">
+<link rel="stylesheet" href="style.css?v=0.13"></head><body><div class="version-badge" id="appVersion">Ver.0.13</div><div class="container">
 
 <section id="setupScreen" class="hidden">
  <div class="brand"><div class="logo">C</div><div><h1>CarLog</h1><p>まず愛車を登録しよう</p></div></div>
@@ -56,7 +56,7 @@
  <button onclick="goHome()">キャンセル</button></section>
 
 </div>
-<nav class="bottom-nav" id="bottomNav">
+<nav class="bottom-nav hidden" id="bottomNav">
   <button type="button" onclick="goHome()"><span class="nav-icon">⌂</span><span>ホーム</span></button>
   <button type="button" onclick="openFuelScreen()"><span class="nav-icon">⛽</span><span>給油</span></button>
   <button type="button" class="nav-add" onclick="openQuickAdd()" aria-label="記録を追加"><span>＋</span></button>
@@ -77,12 +77,12 @@
     <button type="button" class="sheet-cancel" onclick="closeQuickAdd()">キャンセル</button>
   </div>
 </div>
-<script src="app.js"></script>
+<script src="app.js?v=0.13"></script>
 <script>
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", async () => {
     try {
-      const reg = await navigator.serviceWorker.register("./sw.js?v=0.12", { updateViaCache: "none" });
+      const reg = await navigator.serviceWorker.register("./sw.js?v=0.13", { updateViaCache: "none" });
       await reg.update();
 
       let refreshing = false;

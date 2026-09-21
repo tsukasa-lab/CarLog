@@ -1,9 +1,9 @@
-const CACHE_NAME = "carlog-v0.12";
+const CACHE_NAME = "carlog-v0.13";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./style.css",
-  "./app.js",
+  "./style.css?v=0.13",
+  "./app.js?v=0.13",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png"
@@ -27,13 +27,11 @@ self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // HTML/JS/CSS/SWは常にネット優先。失敗時だけキャッシュ。
   event.respondWith(
     fetch(event.request, {cache:"no-store"})
       .then(response => {
         if (response && response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
         }
         return response;
       })
@@ -41,7 +39,7 @@ self.addEventListener("fetch", event => {
         const cached = await caches.match(event.request);
         if (cached) return cached;
         if (event.request.mode === "navigate") return caches.match("./index.html");
-        throw new Error("Offline and not cached");
+        return new Response("Offline", {status:503, statusText:"Offline"});
       })
   );
 });
