@@ -1,4 +1,4 @@
-const CACHE_NAME = "carlog-v0.11";
+const CACHE_NAME = "carlog-v0.12";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -10,9 +10,7 @@ const APP_FILES = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
   self.skipWaiting();
 });
 
@@ -26,12 +24,12 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
-
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // HTML/JS/CSS/SWは常にネット優先。失敗時だけキャッシュ。
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, {cache:"no-store"})
       .then(response => {
         if (response && response.ok) {
           const copy = response.clone();

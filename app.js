@@ -105,11 +105,11 @@ function closeQuickAdd(event){
 }
 function quickGo(kind){
   closeQuickAdd();
-  if(!vehicle){
-    alert("先に車両を登録してください。");
-    return;
-  }
-  if(kind==="fuel") openFuelScreen();
-  if(kind==="maintenance") openMaintenanceScreen();
-  if(kind==="expense") openExpenseScreen();
+  if(!vehicle){ alert("先に車両を登録してください。"); return; }
+  const actions={
+    fuel:openFuelScreen,
+    maintenance:openMaintenanceScreen,
+    expense:openExpenseScreen
+  };
+  if(actions[kind]) actions[kind]();
 }
